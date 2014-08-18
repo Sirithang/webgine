@@ -22,13 +22,9 @@ void Draw ( void *arg )
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	GLfloat vVertices[] = {  0.0f,  1.0f, 0.5f, 
-	-0.5f, 1.0f, -0.5f,
-	0.5f, 1.0f, -0.5f};
-
-	//GLfloat vVertices[] = {  0.0f,  0.5f, 0.0f,
-	//	-0.5f, -0.5f, 0.0f,
-	//	0.5f, -0.5f, 0.0f};
+	GLfloat vVertices[] = {  0.0f,  0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f};
 
 	// No clientside arrays, so do this in a webgl-friendly manner
 	GLuint vertexPosObject;
@@ -43,13 +39,13 @@ void Draw ( void *arg )
 	glClear ( GL_COLOR_BUFFER_BIT );
 
 	Camera& c = getCamera(cam);
-	shader::bind(mat);
 
 	// Load the vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPosObject);
 	glVertexAttribPointer(0 /* ? */, 3, GL_FLOAT, 0, 0, 0);
 	glEnableVertexAttribArray(0);
 
+	shader::bind(mat);
 	shader::setParameter(mat, "uViewMatrix", &c.view);
 	shader::setParameter(mat, "uProjectionMatrix", &c.projection);
 
@@ -98,7 +94,7 @@ int main(int argc, char** argv)
 	EntityID camentity = entity::create();
 	Entity& e = getEntity(camentity);
 
-	transform::setPosition(e._transform, alfar::vector3::create(0,0,0));
+	transform::setPosition(e._transform, alfar::vector3::create(0,0.5f,0));
 	cam = camera::create(camentity);
 
 	/*if ( !Init ( &esContext ) )

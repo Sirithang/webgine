@@ -3,6 +3,8 @@
 #include "quaternion.h"
 #include "transform.h"
 
+#include <stdio.h>
+
 IMPLEMENT_MANAGED(Camera)
 
 CameraID camera::create(EntityID owner)
@@ -21,7 +23,7 @@ CameraID camera::create(EntityID owner)
 
 void camera::reset(Camera& c)
 {
-	c.projection = alfar::mat4x4::persp(70.0f * 3.14f / 180.0f, 4.0f/3.0f, 0.1f, 100.0f);
+	c.projection = alfar::mat4x4::persp(3.14f / 2.0f, 4.0f/3.0f, 0.1f, 100.0f);
 	c.view = alfar::mat4x4::identity();
 }
 
@@ -29,7 +31,7 @@ void camera::updateMatrices(Camera& cam)
 {
 	Transform& t = getTransform(cam._tn);
 
-	alfar::Vector3 v = alfar::vector3::create(0,1,0);
+	printf("forward : %f, %f, %f \n", t._up.x, t._up.y, t._up.z);
 
 	cam.view = alfar::mat4x4::lookAt(t._position, alfar::vector3::add(t._position, t._forward), t._up );
 }

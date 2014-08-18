@@ -24,8 +24,8 @@ Global
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Debug|Win32.ActiveCfg = Debug|Emscripten
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Debug|Win32.Build.0 = Debug|Emscripten
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Debug|x64.ActiveCfg = Debug|Win32
-		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Emscripten.ActiveCfg = Release|Win32
-		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Emscripten.Build.0 = Release|Win32
+		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Emscripten.ActiveCfg = Release|Emscripten
+		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Emscripten.Build.0 = Release|Emscripten
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{570C5FD4-302E-4262-AB2C-A59F397EF5F9}.Release|Win32.ActiveCfg = Release|Win32

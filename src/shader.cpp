@@ -21,29 +21,27 @@ ShaderID shader::create()
 
 //===============================
 
-int GLTypeToFloatNumber(GLenum type)
+inline void UploadUniform(GLenum type, GLint location, GLuint size, GLfloat* value)
 {
 	switch(type)
 	{
 	case GL_FLOAT:
-		return 1;
+		glUniform1fv(location, size, value);
 	case GL_FLOAT_VEC2:
-		return 2;
+		glUniform2fv(location, size, value);
 	case GL_FLOAT_VEC3:
-		return 3;
+		glUniform3fv(location, size, value);
 	case GL_FLOAT_VEC4:
-		return 4;
+		glUniform4fv(location, size, value);
 	case GL_FLOAT_MAT2:
-		return 4;
+		glUniformMatrix2fv(location, size, GL_FALSE, value);
 	case GL_FLOAT_MAT3:
-		return 9;
+		glUniformMatrix3fv(location, size, GL_FALSE, value);
 	case GL_FLOAT_MAT4:
-		return 16;
+		glUniformMatrix4fv(location, size, GL_FALSE, value);
 	default:
 		break;
 	}
-
-	return 0;
 }
 
 //===============================
@@ -155,10 +153,7 @@ void shader::setParameter(ShaderID mat, const char* name, void* value)
 		return;
 	}
 
-	printf("Uniform %s is at pos : %i \n", name, m._params[paramIndex].index);
-	glUniformMatrix4fv(0, 1, GL_FALSE, (GLfloat*)value);
-	//glUniform1fv((GLint)m._params[paramIndex].index, GLTypeToFloatNumber(m._params[paramIndex].type) * m._params[paramIndex].size, (GLfloat*)value);
-	//memcpy(&m._params[paramIndex].value[0], value, size);
+	UploadUniform(m._params[paramIndex].type, m._params[paramIndex].index, m._params[paramIndex].size, (GLfloat*)value);
 }
 
 //--------------------------------------
@@ -181,6 +176,8 @@ void shader::retrieveUniforms(Shader& mat)
 		GLint lengthname;
 
 		glGetActiveUniform(mat._program, i, 256, &lengthname, (GLint*)&param.size, (GLenum*)&param.type, (GLchar*)&param.name);
+
+		param.index = glGetUniformLocation(mat._program, param.name);
 
 		mat._params[mat._paramCount] = param;
 		mat._paramCount++;

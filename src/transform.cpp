@@ -42,6 +42,8 @@ void transform::setPosition(TransformID transform, alfar::Vector3 position)
 
 //--------------------------------
 
+//--------------------------------
+
 void transform::updateMatrix(TransformID tranform)
 {
 	Transform& t = getTransform(tranform);
@@ -50,7 +52,7 @@ void transform::updateMatrix(TransformID tranform)
 	t._matrix = alfar::mat4x4::mul(t._matrix, alfar::mat4x4::translation(t._position));
 	t._matrix = alfar::mat4x4::mul(t._matrix, alfar::quaternion::toMat4x4(t._rotation));
 
-	t._forward = alfar::vector3::mul(t._matrix, alfar::vector3::create(0,1,0));
-	t._up = alfar::vector3::mul(t._matrix, alfar::vector3::create(0,0,1));
-	t._right = alfar::vector3::mul(t._matrix, alfar::vector3::create(1,0,0));
+	t._forward = alfar::vector4::toVec3(alfar::vector4::mul(t._matrix, alfar::vector4::create(0,0,1,0)));
+	t._up = alfar::vector4::toVec3(alfar::vector4::mul(t._matrix, alfar::vector4::create(0,1,0,0)));
+	t._right = alfar::vector4::toVec3(alfar::vector4::mul(t._matrix, alfar::vector4::create(1,0,0,0)));
 }
