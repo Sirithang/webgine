@@ -297,7 +297,7 @@ void ESUTIL_API esMainLoop ( ESContext *esContext )
 
     gettimeofday ( &t1 , &tz );
 
-    // Just one iteration! while(userInterrupt(esContext) == GL_FALSE)
+    while(GL_TRUE)
     {
         gettimeofday(&t2, &tz);
         deltatime = (float)(t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) * 1e-6);

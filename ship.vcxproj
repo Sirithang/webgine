@@ -75,6 +75,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>./include;./ext/foundation;../AlfarMath/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -86,6 +87,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>./include;./ext/foundation;../AlfarMath/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__EMSCRIPTEN__</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -129,7 +131,7 @@
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\esUtil.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\material.cpp" />
+    <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -146,7 +148,7 @@
     <ClInclude Include="ext\foundation\types.h" />
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\entity.h" />
     <ClInclude Include="include\esUtil.h" />
     <ClInclude Include="include\objectmanager.h" />

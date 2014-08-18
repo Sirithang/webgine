@@ -1,4 +1,4 @@
-#include "material.h"
+#include "shader.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,13 +6,13 @@
 
 #include <esUtil.h>
 
-IMPLEMENT_MANAGED(Material)
+IMPLEMENT_MANAGED(Shader)
 
-MaterialID material::create()
+ShaderID shader::create()
 {
-	MaterialID id = gMaterialManager.add();
+	ShaderID id = gShaderManager.add();
 
-	Material& mat = getMaterial(id);
+	Shader& mat = getShader(id);
 
 	mat._program = glCreateProgram();
 
@@ -48,9 +48,9 @@ int GLTypeToFloatNumber(GLenum type)
 
 //===============================
 
-void material::setShader(MaterialID mat, GLenum type, char* source)
+void shader::setShader(ShaderID mat, GLenum type, char* source)
 {
-	Material& m = getMaterial(mat);
+	Shader& m = getShader(mat);
 
 	GLuint shader;
 	GLint compiled;
@@ -98,9 +98,9 @@ void material::setShader(MaterialID mat, GLenum type, char* source)
 
 //------------------------------------
 
-void material::link(MaterialID mat)
+void shader::link(ShaderID mat)
 {
-	Material& m = getMaterial(mat);
+	Shader& m = getShader(mat);
 
 	// Bind vPosition to attribute 0   
 	glBindAttribLocation ( m._program, 0, "vPosition" );
@@ -136,9 +136,9 @@ void material::link(MaterialID mat)
 //--------------------------------------
 
 //size is IN BYTE
-void material::setParameter(MaterialID mat, const char* name, void* value, int size)
+void shader::setParameter(ShaderID mat, const char* name, void* value)
 {
-	Material& m = getMaterial(mat);
+	Shader& m = getShader(mat);
 	int paramIndex = -1;
 	for(int i = 0; i < m._paramCount; ++i)
 	{
@@ -151,22 +151,19 @@ void material::setParameter(MaterialID mat, const char* name, void* value, int s
 
 	if(paramIndex == -1)
 	{
-		esLogMessage("param %s not found\n", name);
+		printf("param %s not found\n", name);
 		return;
 	}
 
-	if(m._params[paramIndex].size < size)
-	{
-		esLogMessage("size bigger than param size\n");
-		return;
-	}
-
-	memcpy(&m._params[paramIndex].value[0], value, size);
+	printf("Uniform %s is at pos : %i \n", name, m._params[paramIndex].index);
+	glUniformMatrix4fv(0, 1, GL_FALSE, (GLfloat*)value);
+	//glUniform1fv((GLint)m._params[paramIndex].index, GLTypeToFloatNumber(m._params[paramIndex].type) * m._params[paramIndex].size, (GLfloat*)value);
+	//memcpy(&m._params[paramIndex].value[0], value, size);
 }
 
 //--------------------------------------
 
-void material::retrieveUniforms(Material& mat)
+void shader::retrieveUniforms(Shader& mat)
 {
 	mat._paramCount = 0;
 
@@ -177,9 +174,7 @@ void material::retrieveUniforms(Material& mat)
 
 	for(int i = 0; i < nbUniforms; ++i)
 	{
-		MaterialParameter param;
-
-		memset(&param.value[0], 0, 16*sizeof(float));
+		ShaderParameter param;
 
 		param.index = i;
 
@@ -196,16 +191,10 @@ void material::retrieveUniforms(Material& mat)
 
 //--------------------------------------
 
-void material::bind(MaterialID mat)
+void shader::bind(ShaderID mat)
 {
-	Material& m = getMaterial(mat);
+	Shader& m = getShader(mat);
 	glUseProgram ( m._program );
-
-	for(int i = 0; i < m._paramCount; ++i)
-	{
-		MaterialParameter param = m._params[i];
-		glUniform1fv(param.index, GLTypeToFloatNumber(param.type) * param.size, param.value);
-	}
 }
 
 //-------------------------------------

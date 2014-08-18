@@ -36,9 +36,6 @@
     <ClCompile Include="ext\foundation\string_stream.cpp">
       <Filter>foundation</Filter>
     </ClCompile>
-    <ClCompile Include="src\material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,9 +92,6 @@
     <ClInclude Include="include\objectmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\material.h">
-      <Filter>Header Files\data</Filter>
-    </ClInclude>
     <ClInclude Include="include\enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="include\camera.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shader.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

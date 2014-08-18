@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ship", "ship.vcxproj", "{570C5FD4-302E-4262-AB2C-A59F397EF5F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webgine", "ship.vcxproj", "{570C5FD4-302E-4262-AB2C-A59F397EF5F9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AlfarMath", "..\AlfarMath\AlfarMath.vcxproj", "{478A309A-CB95-454D-A07D-3F04BF502F44}"
 EndProject
@@ -36,15 +36,13 @@ Global
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|Win32.ActiveCfg = Debug|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|Win32.Build.0 = Debug|Win32
-		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|x64.ActiveCfg = Debug|x64
-		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|x64.Build.0 = Debug|x64
+		{478A309A-CB95-454D-A07D-3F04BF502F44}.Debug|x64.ActiveCfg = Debug|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|Emscripten.ActiveCfg = Release|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|Win32.ActiveCfg = Release|Win32
 		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|Win32.Build.0 = Release|Win32
-		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|x64.ActiveCfg = Release|x64
-		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|x64.Build.0 = Release|x64
+		{478A309A-CB95-454D-A07D-3F04BF502F44}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
