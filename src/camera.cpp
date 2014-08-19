@@ -30,9 +30,6 @@ void camera::reset(Camera& c)
 void camera::updateMatrices(Camera& cam)
 {
 	Transform& t = getTransform(cam._tn);
-
-	printf("forward : %f, %f, %f \n", t._up.x, t._up.y, t._up.z);
-
 	cam.view = alfar::mat4x4::lookAt(t._position, alfar::vector3::add(t._position, t._forward), t._up );
 }
 

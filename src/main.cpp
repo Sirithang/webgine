@@ -5,32 +5,40 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "mesh.h"
 #include "transform.h"
 #include "vector3.h"
 
 ShaderID mat;
 CameraID cam;
+EntityID camentity;
+Mesh m;
 
+int dir = 1;
 float cls = 0.0f;
 
 void Draw ( void *arg )
 {
 	ESContext *esContext = (ESContext*)arg;
 
+	cls += 0.01f * dir;
+	if(cls > 1.0f)
+	{
+		cls = 1.0f;
+		dir = -dir;
+	}
+	else if(cls < -1.0f)
+	{
+		cls = -1.0f;
+		dir = -dir;
+	}
+	Entity& e = getEntity(camentity);
+	transform::setPosition(e._transform, alfar::vector3::create(0, cls, -2));
+
 	camera::update();
 
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	GLfloat vVertices[] = {  0.0f,  0.5f, 0.5f,
-		-0.5f, -0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f};
-
-	// No clientside arrays, so do this in a webgl-friendly manner
-	GLuint vertexPosObject;
-	glGenBuffers(1, &vertexPosObject);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexPosObject);
-	glBufferData(GL_ARRAY_BUFFER, 9*4, vVertices, GL_STATIC_DRAW);
 
 	// Set the viewport
 	glViewport ( 0, 0, esContext->width, esContext->height );
@@ -40,16 +48,12 @@ void Draw ( void *arg )
 
 	Camera& c = getCamera(cam);
 
-	// Load the vertex data
-	glBindBuffer(GL_ARRAY_BUFFER, vertexPosObject);
-	glVertexAttribPointer(0 /* ? */, 3, GL_FLOAT, 0, 0, 0);
-	glEnableVertexAttribArray(0);
-
 	shader::bind(mat);
 	shader::setParameter(mat, "uViewMatrix", &c.view);
 	shader::setParameter(mat, "uProjectionMatrix", &c.projection);
 
-	glDrawArrays ( GL_TRIANGLES, 0, 3 );
+	mesh::bind(m);
+	mesh::draw(m);
 }
 
 int main(int argc, char** argv)
@@ -91,17 +95,24 @@ int main(int argc, char** argv)
 	shader::setShader(mat, GL_FRAGMENT_SHADER, fShaderStr);
 	shader::link(mat);
 
-	EntityID camentity = entity::create();
+	camentity = entity::create();
 	Entity& e = getEntity(camentity);
 
-	transform::setPosition(e._transform, alfar::vector3::create(0,0.5f,0));
+	transform::setPosition(e._transform, alfar::vector3::create(0,0,0));
 	cam = camera::create(camentity);
 
-	/*if ( !Init ( &esContext ) )
-	return 0;*/
+	GLushort indices[] = {0,1,2,0,2,3};
+	InputVertex verts[] = 
+	{
+		{{-0.5f, -0.5f, 0.5f,1.0f},{0,0,0,0},{0,0,0,0}},
+		{{ 0.5f, -0.5f, 0.5f,1.0f},{0,0,0,0},{0,0,0,0}},
+		{{ 0.5f,  0.5f, 0.5f,1.0f},{0,0,0,0},{0,0,0,0}},
+		{{-0.5f,  0.5f, 0.5f,1.0f},{0,0,0,0},{0,0,0,0}}
+	};
 
-	//esRegisterDrawFunc ( &esContext, Draw );
+	mesh::create(m);
+	mesh::upload(m, GL_ARRAY_BUFFER, verts, 4 * sizeof(InputVertex));
+	mesh::upload(m, GL_ELEMENT_ARRAY_BUFFER, indices, 6 * sizeof(GLushort));
 
-	//esMainLoop ( &esContext );
 	emscripten_set_main_loop_arg(Draw, &esContext, 0, 1);
 }

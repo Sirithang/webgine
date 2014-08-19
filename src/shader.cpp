@@ -21,7 +21,7 @@ ShaderID shader::create()
 
 //===============================
 
-inline void UploadUniform(GLenum type, GLint location, GLuint size, GLfloat* value)
+inline void uploadUniform(GLenum type, GLint location, GLuint size, GLfloat* value)
 {
 	switch(type)
 	{
@@ -102,6 +102,9 @@ void shader::link(ShaderID mat)
 
 	// Bind vPosition to attribute 0   
 	glBindAttribLocation ( m._program, 0, "vPosition" );
+	glBindAttribLocation ( m._program, 1, "vNormal" );
+	glBindAttribLocation ( m._program, 2, "vTexcoord" );
+
 	glLinkProgram ( m._program );
 
 	 GLint linked;
@@ -153,7 +156,7 @@ void shader::setParameter(ShaderID mat, const char* name, void* value)
 		return;
 	}
 
-	UploadUniform(m._params[paramIndex].type, m._params[paramIndex].index, m._params[paramIndex].size, (GLfloat*)value);
+	uploadUniform(m._params[paramIndex].type, m._params[paramIndex].index, m._params[paramIndex].size, (GLfloat*)value);
 }
 
 //--------------------------------------
@@ -164,8 +167,6 @@ void shader::retrieveUniforms(Shader& mat)
 
 	GLint nbUniforms;
 	glGetProgramiv(mat._program, GL_ACTIVE_UNIFORMS, &nbUniforms);
-
-	esLogMessage("nb uniform : %i \n", nbUniforms);
 
 	for(int i = 0; i < nbUniforms; ++i)
 	{

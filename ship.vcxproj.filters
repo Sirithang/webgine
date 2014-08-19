@@ -19,6 +19,9 @@
     <Filter Include="Header Files\data">
       <UniqueIdentifier>{7e9b2bf9-1082-4e25-bda5-4f06c7793b48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\data">
+      <UniqueIdentifier>{ebdb5c6e-d616-49f7-9519-9b4e4cd87c69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -46,7 +49,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\shader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mesh.cpp">
+      <Filter>Source Files\data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\shader.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mesh.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
