@@ -31,6 +31,9 @@ namespace shader
 
 	void bind(ShaderID mat);
 
+	int getParameterIndex(ShaderID shader, const char* name);
+
+	void setParameter(ShaderID shader, int id, void* value);
 	void setParameter(ShaderID mat, const char* name, void* value);
 
 	//---- helper function

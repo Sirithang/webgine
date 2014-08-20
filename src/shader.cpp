@@ -134,12 +134,11 @@ void shader::link(ShaderID mat)
 	retrieveUniforms(m);
 }
 
-//--------------------------------------
+//-------------------------------------
 
-//size is IN BYTE
-void shader::setParameter(ShaderID mat, const char* name, void* value)
+int shader::getParameterIndex(ShaderID shader, const char* name)
 {
-	Shader& m = getShader(mat);
+	Shader& m = getShader(shader);
 	int paramIndex = -1;
 	for(int i = 0; i < m._paramCount; ++i)
 	{
@@ -150,13 +149,26 @@ void shader::setParameter(ShaderID mat, const char* name, void* value)
 		}
 	}
 
-	if(paramIndex == -1)
-	{
-		printf("param %s not found\n", name);
-		return;
-	}
+	return paramIndex;
+}
 
-	uploadUniform(m._params[paramIndex].type, m._params[paramIndex].index, m._params[paramIndex].size, (GLfloat*)value);
+//--------------------------------------
+
+void shader::setParameter(ShaderID mat, int id, void* value)
+{
+	if(id != -1)
+	{
+		Shader& s = getShader(mat);
+		uploadUniform(s._params[id].type, s._params[id].index, s._params[id].size, (GLfloat*)value);
+	}
+}
+
+//--------------------------------------
+
+//size is IN BYTE
+void shader::setParameter(ShaderID mat, const char* name, void* value)
+{
+	setParameter(mat, getParameterIndex(mat, name), value);
 }
 
 //--------------------------------------

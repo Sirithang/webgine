@@ -4,15 +4,22 @@
 #include "esUtil.h"
 
 #include "shader.h"
+#include "material.h"
 #include "camera.h"
 #include "mesh.h"
 #include "transform.h"
 #include "vector3.h"
 
-ShaderID mat;
+#include "renderer.h"
+
+ShaderID shad;
+
+MaterialID mat1;
+MaterialID mat2;
+
 CameraID cam;
 EntityID camentity;
-Mesh m;
+MeshID m;
 
 int dir = 1;
 float cls = 0.0f;
@@ -37,6 +44,13 @@ void Draw ( void *arg )
 
 	camera::update();
 
+	RenderKey key;
+	key.sortKey.cameraID = cam;
+	key.sortKey.shaderID = shad;
+	key.sortKey.materialID = mat1;
+	key.mesh = m;
+	renderer::addRenderable(key);
+
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -46,24 +60,19 @@ void Draw ( void *arg )
 	// Clear the color buffer
 	glClear ( GL_COLOR_BUFFER_BIT );
 
-	Camera& c = getCamera(cam);
-
-	shader::bind(mat);
-	shader::setParameter(mat, "uViewMatrix", &c.view);
-	shader::setParameter(mat, "uProjectionMatrix", &c.projection);
-
-	mesh::bind(m);
-	mesh::draw(m);
+	renderer::render();
 }
 
 int main(int argc, char** argv)
 {
 	ESContext esContext;
 
+	renderer::init();
+
 	esInitContext ( &esContext );
 	esCreateWindow ( &esContext, "Hello Triangle", 800, 600, ES_WINDOW_RGB );
 
-	mat = shader::create();
+	shad = shader::create();
 
 	FILE* f = fopen("basepassvertex.vs", "r");
 
@@ -91,15 +100,26 @@ int main(int argc, char** argv)
 	fread (fShaderStr,1,lSize,f);
 	fShaderStr[lSize] = '\0';
 
-	shader::setShader(mat, GL_VERTEX_SHADER, vShaderStr);
-	shader::setShader(mat, GL_FRAGMENT_SHADER, fShaderStr);
-	shader::link(mat);
+	shader::setShader(shad, GL_VERTEX_SHADER, vShaderStr);
+	shader::setShader(shad, GL_FRAGMENT_SHADER, fShaderStr);
+	shader::link(shad);
 
 	camentity = entity::create();
 	Entity& e = getEntity(camentity);
 
 	transform::setPosition(e._transform, alfar::vector3::create(0,0,0));
 	cam = camera::create(camentity);
+
+
+	alfar::Vector3 c = alfar::vector3::create(0.0f, 1.0f, 0.0f);
+
+	mat1 = material::create();
+	material::setShader(mat1, shad);
+	material::setValue(mat1, "uColor", &c, sizeof(alfar::Vector3));
+
+	mat2 = material::create();
+	material::setShader(mat2, shad);
+	material::setValue(mat2, "uColor", &c, sizeof(alfar::Vector3));
 
 	GLushort indices[] = {0,1,2,0,2,3};
 	InputVertex verts[] = 
@@ -110,7 +130,7 @@ int main(int argc, char** argv)
 		{{-0.5f,  0.5f, 0.5f,1.0f},{0,0,0,0},{0,0,0,0}}
 	};
 
-	mesh::create(m);
+	m = mesh::create();
 	mesh::upload(m, GL_ARRAY_BUFFER, verts, 4 * sizeof(InputVertex));
 	mesh::upload(m, GL_ELEMENT_ARRAY_BUFFER, indices, 6 * sizeof(GLushort));
 

@@ -1,15 +1,24 @@
 #include "mesh.h"
 
-void mesh::create(Mesh& m)
+IMPLEMENT_MANAGED(Mesh)
+
+MeshID mesh::create()
 {
+	MeshID id = gMeshManager.add();
+	Mesh& m = getMesh(id);
+
 	glGenBuffers(1, &m._vertices);
 	glGenBuffers(1, &m._indices);
 	m._count = 0;
+
+	return id;
 }
 
 
-void mesh::upload(Mesh& m, GLenum target, void* data, int size)
+void mesh::upload(MeshID id, GLenum target, void* data, int size)
 {
+	Mesh& m = getMesh(id);
+
 	GLuint idx = 0;
 
 	switch(target)
@@ -29,8 +38,10 @@ void mesh::upload(Mesh& m, GLenum target, void* data, int size)
 	glBufferData(target, size, data, GL_STATIC_DRAW);
 }
 
-void mesh::bind(Mesh& m)
+void mesh::bind(MeshID id)
 {
+	Mesh& m = getMesh(id);
+
 	glBindBuffer(GL_ARRAY_BUFFER, m._vertices);
 
 	//make that dynamic at some point
@@ -44,7 +55,8 @@ void mesh::bind(Mesh& m)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m._indices);
 }
 
-void mesh::draw(Mesh& m)
+void mesh::draw(MeshID id)
 {
-	  glDrawElements ( GL_TRIANGLES, m._count, GL_UNSIGNED_SHORT, 0 );
+	Mesh& m = getMesh(id);
+	glDrawElements ( GL_TRIANGLES, m._count, GL_UNSIGNED_SHORT, 0 );
 }

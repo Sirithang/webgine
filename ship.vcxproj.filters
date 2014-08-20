@@ -22,6 +22,12 @@
     <Filter Include="Source Files\data">
       <UniqueIdentifier>{ebdb5c6e-d616-49f7-9519-9b4e4cd87c69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\component">
+      <UniqueIdentifier>{fe95e76e-7bd4-41e0-828a-72dbbf9b5d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\component">
+      <UniqueIdentifier>{758268da-162f-45d3-96cc-30f915403577}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -39,12 +45,6 @@
     <ClCompile Include="ext\foundation\string_stream.cpp">
       <Filter>foundation</Filter>
     </ClCompile>
-    <ClCompile Include="src\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +52,18 @@
       <Filter>Source Files\data</Filter>
     </ClCompile>
     <ClCompile Include="src\mesh.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camera.cpp">
+      <Filter>Source Files\component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\transform.cpp">
+      <Filter>Source Files\component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\material.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,16 +113,22 @@
     <ClInclude Include="include\enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\shader.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
     <ClInclude Include="include\mesh.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\camera.h">
+      <Filter>Header Files\component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\transform.h">
+      <Filter>Header Files\component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\material.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
