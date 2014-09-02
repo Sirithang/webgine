@@ -34,11 +34,23 @@ void renderer::init()
 {
 	foundation::memory_globals::init();
 	gRenderer = new Renderer();
+
+	glEnable(GL_DEPTH_TEST);
 }
 
 void renderer::addRenderable(RenderKey key)
 {
 	foundation::array::push_back(gRenderer->_renderables, key);
+}
+
+void renderer::resetRenderkey(RenderKey& key)
+{
+	key.mesh = -1;
+	key.material = -1;
+	key.shader = -1;
+	key.sortKey._key =  ~(0x0ULL);
+
+	key.sortKey.transparent = 0;
 }
 
 void renderer::render()
@@ -47,23 +59,35 @@ void renderer::render()
 
 	RenderKey* current = foundation::array::begin(gRenderer->_renderables);
 	RenderKey last;
-	last.sortKey._key = ~0x0;
+	resetRenderkey(last);
+
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 
 	while(current != foundation::array::end(gRenderer->_renderables))
 	{
-		if(current->sortKey.shaderID != last.sortKey.shaderID)
+		if(current->sortKey.transparent != last.sortKey.transparent)
+		{//we just switch to transparent rendering, disable depth write & simple blending (ATM, TODO configurable per mat)
+			glDepthMask(GL_FALSE);
+			glEnable (GL_BLEND);
+			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		
+		if(current->shader != last.shader)
 		{
-			shader::bind(current->sortKey.shaderID);
+			shader::bind(current->shader);
 
 			Camera& c = getCamera(current->sortKey.cameraID);
-			shader::setParameter(current->sortKey.shaderID, "uViewMatrix", &c.view);
-			shader::setParameter(current->sortKey.shaderID, "uProjectionMatrix", &c.projection);
+			shader::setParameter(current->shader, "uViewMatrix", &c.view);
+			shader::setParameter(current->shader, "uProjectionMatrix", &c.projection);
 		}
 
-		if(current->sortKey.materialID != last.sortKey.materialID)
+		if(current->material != last.material)
 		{
-			material::bind(current->sortKey.materialID);
+			material::bind(current->material);
 		}
+
+		shader::setParameter(current->shader, "uModelMatrix", &current->transform);
 
 		mesh::bind(current->mesh);
 		mesh::draw(current->mesh);

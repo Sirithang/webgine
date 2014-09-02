@@ -23,14 +23,19 @@ CameraID camera::create(EntityID owner)
 
 void camera::reset(Camera& c)
 {
-	c.projection = alfar::mat4x4::persp(3.14f / 2.0f, 4.0f/3.0f, 0.1f, 100.0f);
+	c.projection = alfar::mat4x4::persp(3.14f / 3.0f, 4.0f/3.0f, 0.1f, 1000000.0f);
 	c.view = alfar::mat4x4::identity();
 }
 
 void camera::updateMatrices(Camera& cam)
 {
 	Transform& t = getTransform(cam._tn);
-	cam.view = alfar::mat4x4::lookAt(t._position, alfar::vector3::add(t._position, t._forward), t._up );
+
+	alfar::Vector3 p = transform::getWorldPosition(cam._tn);
+
+	//printf("Forward of cam : %f %f %f \n", t._forward.x, t._forward.y, t._forward.z);
+
+	cam.view = alfar::mat4x4::lookAt(p, alfar::vector3::add(p, t._forward), t._up );
 }
 
 

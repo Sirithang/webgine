@@ -5,19 +5,19 @@
 */
 
 #include <limits.h>
+#include <stdio.h>
 #include "types.h"
 
 typedef unsigned ID;
 
-#define INDEX_MASK 0x0
-#define NEW_OBJECT_ID_ADD 0x1
+#define INDEX_MASK 0xffff
+#define NEW_OBJECT_ID_ADD 0x0000
 
 struct Index {
 	ID id;
 	unsigned short index;
 	unsigned short next;
 };
-
 
 struct ManagedObject
 {

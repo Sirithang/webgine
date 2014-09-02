@@ -27,21 +27,47 @@ inline void uploadUniform(GLenum type, GLint location, GLuint size, GLfloat* val
 	{
 	case GL_FLOAT:
 		glUniform1fv(location, size, value);
+		break;
 	case GL_FLOAT_VEC2:
 		glUniform2fv(location, size, value);
+		break;
 	case GL_FLOAT_VEC3:
 		glUniform3fv(location, size, value);
+		break;
 	case GL_FLOAT_VEC4:
 		glUniform4fv(location, size, value);
+		break;
 	case GL_FLOAT_MAT2:
 		glUniformMatrix2fv(location, size, GL_FALSE, value);
+		break;
 	case GL_FLOAT_MAT3:
 		glUniformMatrix3fv(location, size, GL_FALSE, value);
+		break;
 	case GL_FLOAT_MAT4:
 		glUniformMatrix4fv(location, size, GL_FALSE, value);
+		break;
 	default:
 		break;
 	}
+}
+
+//===============================
+
+void shader::setFromFile(ShaderID shader, GLenum type, const char* file)
+{
+	FILE* f = fopen(file, "r");
+
+	// obtain file size:
+	fseek (f , 0 , SEEK_END);
+	int lSize = ftell (f);
+	rewind (f);
+	char* shaderStr = (char*) malloc (lSize + 1);
+	fread (shaderStr,1,lSize,f);
+	shaderStr[lSize] = '\0';
+
+	setShader(shader, type, shaderStr);
+
+	free(shaderStr);
 }
 
 //===============================

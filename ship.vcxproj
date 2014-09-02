@@ -91,7 +91,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>./include;./ext/foundation;../AlfarMath/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__EMSCRIPTEN__;ASSERTIONS=2</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__EMSCRIPTEN__;ASSERTIONS=2;_DEBUG;STB_PERLIN_IMPLEMENTATION</PreprocessorDefinitions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>
     <Link>
@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>./include;./ext/foundation;../AlfarMath/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__EMSCRIPTEN__</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__EMSCRIPTEN__;STB_PERLIN_IMPLEMENTATION</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -134,14 +134,19 @@
     <ClCompile Include="ext\foundation\memory.cpp" />
     <ClCompile Include="ext\foundation\murmur_hash.cpp" />
     <ClCompile Include="ext\foundation\string_stream.cpp" />
+    <ClCompile Include="src\behaviour.cpp" />
     <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\camerabehaviour.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\esUtil.cpp" />
+    <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\meshrenderer.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\terrainbehaviour.cpp" />
     <ClCompile Include="src\transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,16 +161,28 @@
     <ClInclude Include="ext\foundation\string_stream.h" />
     <ClInclude Include="ext\foundation\temp_allocator.h" />
     <ClInclude Include="ext\foundation\types.h" />
+    <ClInclude Include="include\behaviour.h" />
+    <ClInclude Include="include\CameraBehaviour.h" />
+    <ClInclude Include="include\input.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\enums.h" />
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\meshrenderer.h" />
     <ClInclude Include="include\renderer.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\entity.h" />
     <ClInclude Include="include\esUtil.h" />
     <ClInclude Include="include\objectmanager.h" />
+    <ClInclude Include="include\std_perlin.h" />
+    <ClInclude Include="include\terrainbehaviour.h" />
     <ClInclude Include="include\transform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\basepasspixel.ps" />
+    <None Include="data\basepassvertex.vs" />
+    <None Include="data\terrainpass.ps" />
+    <None Include="data\water.ps" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

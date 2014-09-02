@@ -1,0 +1,63 @@
+precision mediump float;
+
+#define EPSILON 0.1
+
+varying vec4 oWorldPos;
+varying vec3 oNormal;
+varying vec4 oTexcoord;
+uniform vec3 uColor;
+uniform vec4 uData;
+
+// hash based 3d value noise
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+float noise( in vec3 x )
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                   mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                   mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
+
+const mat3 m3 = mat3( 0.00,  0.80,  0.60,
+                     -0.80,  0.36, -0.48,
+                     -0.60, -0.48,  0.64 );
+float fbm( in vec3 p ) {
+    float f = 0.0;
+    f += 0.5000*noise( p ); p = m3*p*2.02;
+    f += 0.2500*noise( p ); p = m3*p*2.03;
+    f += 0.1250*noise( p ); p = m3*p*2.01;
+    f += 0.0625*noise( p );
+    return f/0.9375;
+}
+
+float waterMap( vec2 pos ) 
+{
+	return abs( fbm( vec3( 60.*pos, uData.x ))-0.5 )* 0.1;
+}
+
+void main()                                  
+{
+	vec3 normal = vec3(0,1,0);
+
+	float bumpfactor = 1.0;
+
+	vec2 dx = vec2( EPSILON, 0. );
+	vec2 dz = vec2( 0., EPSILON );
+
+	normal.x = -bumpfactor * (waterMap(oTexcoord.xy + dx) - waterMap(oTexcoord.xy-dx) ) / (2. * EPSILON);
+	normal.z = -bumpfactor * (waterMap(oTexcoord.xy + dz) - waterMap(oTexcoord.xy-dz) ) / (2. * EPSILON);
+	normal = normalize( normal );
+
+	float intensity = dot(normal, -normalize(vec3(-1,-1,0)));
+
+	gl_FragColor = vec4 (vec3(0.2,0.4,0.8) * intensity, 1.0 - (0.4 * intensity));	     
+}

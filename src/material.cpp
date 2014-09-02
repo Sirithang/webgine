@@ -11,6 +11,7 @@ MaterialID material::create()
 	Material& m = getMaterial(ret);
 
 	m._count = 0;
+	m._flags = 0;
 
 	return ret;
 }
@@ -35,7 +36,7 @@ void material::setValue(MaterialID mat, const char* name, void* value, int size)
 
 	if(idx == -1)
 	{
-		printf("Couldn't find : %s in shader\n", name);
+		//printf("Couldn't find : %s in shader\n", name);
 		return;
 	}
 
@@ -58,7 +59,14 @@ void material::setValue(MaterialID mat, const char* name, void* value, int size)
 	}
 
 	int correctedSize = std::min<int>(16 * sizeof(float), size);
-	memcpy(m._values[existingId].value, value, size);
+	memcpy(m._values[existingId].value, value, correctedSize);
+}
+
+//=========================================
+
+void material::setFlag(MaterialID mat, unsigned int flags)
+{
+	getMaterial(mat)._flags = flags;
 }
 
 //-----------------------------------------
@@ -66,7 +74,6 @@ void material::setValue(MaterialID mat, const char* name, void* value, int size)
 void material::bind(MaterialID material)
 {
 	Material& m = getMaterial(material);
-
 	for(int i = 0; i < m._count; ++i)
 	{
 		shader::setParameter(m._shader, m._values[i].paramIdx, m._values[i].value);

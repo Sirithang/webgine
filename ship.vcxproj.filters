@@ -28,6 +28,15 @@
     <Filter Include="Source Files\component">
       <UniqueIdentifier>{758268da-162f-45d3-96cc-30f915403577}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\behaviour">
+      <UniqueIdentifier>{ba284c9d-034e-4819-8da8-6cf1f2398349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\behaviour">
+      <UniqueIdentifier>{42836445-ae11-46b8-ac31-79a687197546}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{d0523c94-0126-4fe2-aa2e-7cfcd0a55dc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -65,6 +74,21 @@
     </ClCompile>
     <ClCompile Include="src\material.cpp">
       <Filter>Source Files\data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshrenderer.cpp">
+      <Filter>Source Files\component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\behaviour.cpp">
+      <Filter>Source Files\component</Filter>
+    </ClCompile>
+    <ClCompile Include="src\camerabehaviour.cpp">
+      <Filter>Source Files\behaviour</Filter>
+    </ClCompile>
+    <ClCompile Include="src\terrainbehaviour.cpp">
+      <Filter>Source Files\behaviour</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,5 +155,37 @@
     <ClInclude Include="include\material.h">
       <Filter>Header Files\data</Filter>
     </ClInclude>
+    <ClInclude Include="include\meshrenderer.h">
+      <Filter>Header Files\component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\behaviour.h">
+      <Filter>Header Files\component</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraBehaviour.h">
+      <Filter>Header Files\behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="include\terrainbehaviour.h">
+      <Filter>Header Files\behaviour</Filter>
+    </ClInclude>
+    <ClInclude Include="include\std_perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\basepasspixel.ps">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\basepassvertex.vs">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\terrainpass.ps">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\water.ps">
+      <Filter>data</Filter>
+    </None>
   </ItemGroup>
 </Project>

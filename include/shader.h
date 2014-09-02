@@ -26,7 +26,9 @@ namespace shader
 {
 	ShaderID create();
 
+	void setFromFile(ShaderID shader, GLenum type, const char* file);
 	void setShader(ShaderID mat, GLenum type, char* source);
+
 	void link(ShaderID mat);
 
 	void bind(ShaderID mat);

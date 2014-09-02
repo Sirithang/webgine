@@ -1,8 +1,10 @@
 precision mediump float;
 
+varying vec3 oNormal;
 uniform vec3 uColor;
 
 void main()                                  
-{                                            
-  gl_FragColor = vec4 ( uColor, 1.0 );
+{                         
+   float intensity = clamp(dot(oNormal, -normalize(vec3(-1,-1,0))), 0.0,1.0);                   
+   gl_FragColor = vec4 ( uColor * intensity, 1.0 );
 }                                            

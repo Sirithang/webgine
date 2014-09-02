@@ -1,0 +1,24 @@
+precision mediump float;
+
+varying vec4 oWorldPos;
+varying vec3 oNormal;
+uniform vec3 uColor;
+
+void main()                                  
+{                      
+	//under 0 go toward "beach"
+	float worldH = clamp(-(oWorldPos.y / oWorldPos.w - 1.0), 0.0, 1.0);
+   
+   //steeper slope give rocky
+   //float slope = 1.0 - dot(vec3(0,1,0), oNormal);
+   
+   float intensity = clamp(dot(oNormal, -normalize(vec3(-1,-1,0))), 0.0,1.0);  
+   
+   vec3 sand = vec3(0.96, 0.87, 0.42);
+   vec3 grass = vec3(0.5, 1.0, 0.6);
+   vec3 rock = vec3(0.56,0.53,0.49);
+
+   vec3 col = mix(grass, sand, worldH);
+                    
+   gl_FragColor = vec4 ( col * intensity, 1.0 );
+}           
