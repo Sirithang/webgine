@@ -5,8 +5,14 @@ precision mediump float;
 varying vec4 oWorldPos;
 varying vec3 oNormal;
 varying vec4 oTexcoord;
+
 uniform vec3 uColor;
 uniform vec4 uData;
+
+uniform vec4 uViewDir;
+uniform vec4 uLightDir;
+uniform vec4 uSkyColor;
+uniform vec4 uGroundColor;
 
 // hash based 3d value noise
 float hash( float n )
@@ -39,6 +45,37 @@ float fbm( in vec3 p ) {
     return f/0.9375;
 }
 
+
+//-------
+
+//float NormalDistribution_GGX(float a, float NdH)
+//{
+//    // Isotropic ggx.
+//    float a2 = a*a;
+//    float NdH2 = NdH * NdH;
+//
+//    float denominator = NdH2 * (a2 - 1.0) + 1.0;
+//    denominator *= denominator;
+//    denominator *= PI;
+//
+//    return a2 / denominator;
+//}
+//
+//float smithG_GGX(float NdV, float alphaG)
+//{
+//    float a = alphaG*alphaG;
+//    float b = NdV*NdV;
+//    return 1.0 / (NdV + sqrt(a + b - a*b));
+//}
+
+vec3 Specular_F_Roughness(vec3 specularColor, float a, vec3 h, vec3 v)
+{
+    return (specularColor + (max(vec3(1.0-a, 1.0-a, 1.0-a), specularColor) - specularColor) * pow((1.0 - clamp(dot(v, h),0.0,1.0)), 5.0));
+}
+
+
+//------------
+
 float waterMap( vec2 pos ) 
 {
 	return abs( fbm( vec3( 60.*pos, uData.x ))-0.5 )* 0.1;
@@ -48,7 +85,7 @@ void main()
 {
 	vec3 normal = vec3(0,1,0);
 
-	float bumpfactor = 1.0;
+	float bumpfactor = 10.0;
 
 	vec2 dx = vec2( EPSILON, 0. );
 	vec2 dz = vec2( 0., EPSILON );
@@ -57,7 +94,19 @@ void main()
 	normal.z = -bumpfactor * (waterMap(oTexcoord.xy + dz) - waterMap(oTexcoord.xy-dz) ) / (2. * EPSILON);
 	normal = normalize( normal );
 
-	float intensity = dot(normal, -normalize(vec3(-1,-1,0)));
+	float slope = dot(normal, vec3(0,1,0));
 
-	gl_FragColor = vec4 (vec3(0.2,0.4,0.8) * intensity, 1.0 - (0.4 * intensity));	     
+	float intensity = dot(normal, -uLightDir.xyz);
+	float roughness = 0.1;
+	vec3 spec = Specular_F_Roughness(vec3(0.17,0.17,0.17), roughness*roughness, oNormal, -uViewDir.xyz);
+
+	//This is ambient diffuse
+	vec4 ambientCol = mix(uGroundColor, uSkyColor, (slope + 1.0) * 0.5);
+
+	vec4 endColor = vec4(0,0,0, 1.0);
+	endColor.xyz = vec3(0.0,0.0,0.0) * 0.5;
+	endColor.xyz += spec * ambientCol.xyz;
+	//endColor.xyz += intensity * vec3(1,1,1) * 0.1;
+
+	gl_FragColor = endColor;	     
 }

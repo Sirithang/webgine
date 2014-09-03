@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "transform.h"
 #include "vector3.h"
+#include "vector4.h"
 #include "meshrenderer.h"
 #include "behaviour.h"
 #include "input.h"
@@ -66,6 +67,14 @@ int main(int argc, char** argv)
 	EntityID terrain = entity::create();
 	BehaviourID tb = behaviour::create(terrain);
 	behaviour::setInterface(tb, new TerrainCreator());
+
+	alfar::Vector4 skycol = {121.0f/255.0f, 211.0f/255.0f, 224.0f/255.0f, 1.0f};
+	alfar::Vector4 groundcol = {94.0f/255.0f, 87.0f/255.0f, 47.0f/255.0f, 1.0f};
+	alfar::Vector4 lightdir = alfar::vector4::create(alfar::vector3::normalize(alfar::vector3::create(-0.7,-1.0,0)), 0.0f);
+
+	renderer::setGlobal("uLightDir", &lightdir.x, sizeof(alfar::Vector4));
+	renderer::setGlobal("uSkyColor", &skycol.x, sizeof(alfar::Vector4));
+	renderer::setGlobal("uGroundColor", &groundcol.x, sizeof(alfar::Vector4));
 
 
 	emscripten_set_main_loop_arg(Draw, &esContext, 0, 1);

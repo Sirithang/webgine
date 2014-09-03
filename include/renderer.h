@@ -37,9 +37,18 @@ struct RenderKey
 	ID mesh;
 };
 
+struct GlobalValue
+{
+	char name[256];
+	float value[16];
+};
+
 
 struct Renderer
 {
+	GlobalValue _globals[16];
+	int _globalNumber;
+
 	//sorted list (according to key) of things to render
 	foundation::Array<RenderKey> _renderables;
 
@@ -50,6 +59,9 @@ struct Renderer
 namespace renderer
 {
 	void init();
+
+	//set a global value that will be bind to every shader
+	void setGlobal(const char* name, float* value, int size);
 
 	void addRenderable(RenderKey key);
 	void resetRenderkey(RenderKey& key);

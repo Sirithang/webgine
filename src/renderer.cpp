@@ -6,6 +6,9 @@
 #include "material.h"
 #include "mesh.h"
 #include "camera.h"
+#include "transform.h"
+
+#include "vector4.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +21,7 @@ Renderer::Renderer()
 	:_renderables(foundation::memory_globals::default_allocator())
 {
 	foundation::array::reserve(_renderables, 1024);
+	_globalNumber = 0;
 }
 
 //==================================
@@ -36,6 +40,29 @@ void renderer::init()
 	gRenderer = new Renderer();
 
 	glEnable(GL_DEPTH_TEST);
+}
+
+void renderer::setGlobal(const char* name, float* value, int size)
+{
+	int found = -1;
+	for(int i = 0; i < gRenderer->_globalNumber; ++i)
+	{
+		if(strcmp(gRenderer->_globals[i].name, name) == 0)
+		{
+			found = i;
+				break;
+		}
+	}
+
+	if(found == -1)
+	{
+		found = gRenderer->_globalNumber;
+		strncpy(gRenderer->_globals[found].name, name, 256);
+
+		gRenderer->_globalNumber += 1;
+	}
+
+	memcpy(gRenderer->_globals[found].value, value, size);
 }
 
 void renderer::addRenderable(RenderKey key)
@@ -80,6 +107,16 @@ void renderer::render()
 			Camera& c = getCamera(current->sortKey.cameraID);
 			shader::setParameter(current->shader, "uViewMatrix", &c.view);
 			shader::setParameter(current->shader, "uProjectionMatrix", &c.projection);
+
+			alfar::Vector4 viewDir = alfar::vector4::create(transform::getForward(c._tn),0);
+
+			shader::setParameter(current->shader, "uViewDir", &viewDir);
+
+			//rebind every global
+			for(int i = 0; i < gRenderer->_globalNumber; ++i)
+			{
+				shader::setParameter(current->shader, gRenderer->_globals[i].name, gRenderer->_globals[i].value);
+			}
 		}
 
 		if(current->material != last.material)
