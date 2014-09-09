@@ -3,12 +3,17 @@
 #include "behaviour.h"
 #include "material.h"
 #include "mesh.h"
+#include "meshrenderer.h"
 
 struct TerrainCreator : public BehaviourInterface
 {
 	MaterialID mat;
 	MaterialID watMat;
 	float accum;
+
+	TextureID		skyboxTex;
+	MaterialID		skyboxMat;
+	MeshRendererID	skyboxMesh;
 
 	TerrainCreator();
 
@@ -19,4 +24,6 @@ struct TerrainCreator : public BehaviourInterface
 	//============
 
 	void spawnGrass(InputVertex* inputVert, int size);
+	void createSkybox();
+	void updateSkybox();
 };

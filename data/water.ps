@@ -14,6 +14,8 @@ uniform vec4 uLightDir;
 uniform vec4 uSkyColor;
 uniform vec4 uGroundColor;
 
+uniform samplerCube sSkybox; 
+
 // hash based 3d value noise
 float hash( float n )
 {
@@ -101,9 +103,9 @@ void main()
 	vec3 spec = Specular_F_Roughness(vec3(0.17,0.17,0.17), roughness*roughness, oNormal, -uViewDir.xyz);
 
 	//This is ambient diffuse
-	vec4 ambientCol = mix(uGroundColor, uSkyColor, (slope + 1.0) * 0.5);
+	vec4 ambientCol = textureCube(sSkybox, normal);
 
-	vec4 endColor = vec4(0,0,0, 1.0);
+	vec4 endColor = vec4(0,0,0, 0.6);
 	endColor.xyz = vec3(0.0,0.0,0.0) * 0.5;
 	endColor.xyz += spec * ambientCol.xyz;
 	//endColor.xyz += intensity * vec3(1,1,1) * 0.1;

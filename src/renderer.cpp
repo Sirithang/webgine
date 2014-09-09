@@ -1,4 +1,4 @@
-#include "renderer.h"
+﻿#include "renderer.h"
 #include "memory.h"
 #include "array.h"
 
@@ -77,8 +77,35 @@ void renderer::resetRenderkey(RenderKey& key)
 	key.shader = -1;
 	key.sortKey._key =  ~(0x0ULL);
 
+	key.statedat.depthTest = true;
+	key.statedat.writeDepth = true;
 	key.sortKey.transparent = 0;
 }
+
+//------------------
+
+inline void toggleStates(const StateData& prev, const StateData& current, bool testprev = true)
+{
+	if(!testprev || prev.depthTest != current.depthTest)
+	{
+		if(current.depthTest)
+		{
+			glEnable(GL_DEPTH_TEST);
+		}
+		else
+		{
+			glDisable(GL_DEPTH_TEST);
+		}
+
+	}
+
+	if(!testprev && current.writeDepth != prev .writeDepth)
+	{
+		glDepthMask(current.writeDepth? GL_TRUE : GL_FALSE);
+	}
+}
+
+//------------------
 
 void renderer::render()
 {
@@ -88,18 +115,27 @@ void renderer::render()
 	RenderKey last;
 	resetRenderkey(last);
 
-	glDepthMask(GL_TRUE);
+	StateData prevData;
+	if(current != foundation::array::end(gRenderer->_renderables))
+	{
+		prevData = current->statedat;
+		toggleStates(prevData, prevData, false);
+	}
+
+	
 	glDisable(GL_BLEND);
 
 	while(current != foundation::array::end(gRenderer->_renderables))
 	{
+		toggleStates(prevData, current->statedat);
+		prevData = current->statedat;
+	
 		if(current->sortKey.transparent != last.sortKey.transparent)
 		{//we just switch to transparent rendering, disable depth write & simple blending (ATM, TODO configurable per mat)
-			glDepthMask(GL_FALSE);
 			glEnable (GL_BLEND);
 			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
-		
+
 		if(current->shader != last.shader)
 		{
 			shader::bind(current->shader);

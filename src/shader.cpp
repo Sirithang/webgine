@@ -5,6 +5,9 @@
 #include <GLES2/gl2.h>
 
 #include <esUtil.h>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 IMPLEMENT_MANAGED(Shader)
 
@@ -50,6 +53,24 @@ inline void uploadUniform(GLenum type, GLint location, GLuint size, GLfloat* val
 		break;
 	}
 }
+
+//===============================
+
+//WARNING : that allocate a string, need to be free by caller...
+//char* replaceIncludes(const char* original)
+//{
+//	std::stringstream ss(original);
+//	std::string to;
+//
+//	while(std::getline(ss,to,'\n'))
+//	{
+//
+//		if(to.find("#include"))
+//		{
+//			to.substr()
+//		}
+//	}
+//}
 
 //===============================
 
@@ -195,6 +216,27 @@ void shader::setParameter(ShaderID mat, int id, void* value)
 void shader::setParameter(ShaderID mat, const char* name, void* value)
 {
 	setParameter(mat, getParameterIndex(mat, name), value);
+}
+
+//---------------------------------------
+
+void shader::setTexture(ShaderID shad, int id, GLuint handle, int slot)
+{
+	if(id != -1)
+	{
+		Shader& s = getShader(shad);
+
+		switch(s._params[id].type)
+		{
+		case GL_SAMPLER_CUBE:
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
+			glUniform1i(id, slot);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 //--------------------------------------

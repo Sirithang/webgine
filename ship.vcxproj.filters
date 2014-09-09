@@ -90,6 +90,9 @@
     <ClCompile Include="src\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\texture.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\esUtil.h">
@@ -173,6 +176,9 @@
     <ClInclude Include="include\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\texture.h">
+      <Filter>Header Files\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\basepasspixel.ps">
@@ -185,6 +191,12 @@
       <Filter>data</Filter>
     </None>
     <None Include="data\water.ps">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\skybox.ps">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\skybox.vs">
       <Filter>data</Filter>
     </None>
   </ItemGroup>

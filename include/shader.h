@@ -38,6 +38,8 @@ namespace shader
 	void setParameter(ShaderID shader, int id, void* value);
 	void setParameter(ShaderID mat, const char* name, void* value);
 
+	void setTexture(ShaderID shad, int id, GLuint handle, int slot);
+
 	//---- helper function
 	void retrieveUniforms(Shader& mat);
 }

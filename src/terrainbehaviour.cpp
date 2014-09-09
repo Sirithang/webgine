@@ -1,9 +1,11 @@
 #include "terrainbehaviour.h"
 #include "mesh.h"
+#include "texture.h"
 #include "meshrenderer.h"
 
 #include "vector3.h"
 #include "vector4.h"
+#include "mat4x4.h"
 
 #include "std_perlin.h"
 
@@ -13,6 +15,51 @@
 #include <time.h>
 
 #include <vector>
+
+
+
+alfar::Vector3 faceUVToVector(GLenum face, float U, float V)
+{
+	alfar::Vector3 ret = {0,0,0};
+	switch (face)
+	{
+	case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+		ret.x = 1.0f;
+		ret.y = ((V - 0.5f) * 2.0f) * (-1.0f);
+		ret.z = ((U - 0.5f) * 2.0f) * (-1.0f);
+		break;
+	case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+		ret.x = -1.0f;
+		ret.y = ((V - 0.5f) * 2.0f) * (-1.0f);
+		ret.z = ((U - 0.5f) * 2.0f) * ( 1.0f);
+		break;
+	case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+		ret.x = ((U - 0.5f) * 2.0f) * ( 1.0f);
+		ret.y = 1.0f;
+		ret.z = ((V - 0.5f) * 2.0f) * ( 1.0f);
+		break;
+	case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+		ret.x = ((U - 0.5f) * 2.0f) * ( 1.0f);
+		ret.y = -1.0f;
+		ret.z = ((V - 0.5f) * 2.0f) * (-1.0f);
+		break;
+	case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+		ret.x = ((U - 0.5f) * 2.0f) * ( 1.0f);
+		ret.y = ((V - 0.5f) * 2.0f) * (-1.0f);
+		ret.z = 1.0f;
+		break;
+	case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+		ret.x = ((U - 0.5f) * 2.0f) * (-1.0f);
+		ret.y = ((V - 0.5f) * 2.0f) * (-1.0f);
+		ret.z = -1.0f;
+		break;
+	default:
+		break;
+	}
+
+	return alfar::vector3::normalize(ret);
+}
+
 
 TerrainCreator::TerrainCreator()
 {
@@ -164,6 +211,11 @@ void TerrainCreator::created()
 	material::setFlag(watMat, MAT_TRANSPARENT);
 
 	meshrenderer::setMaterial(rsqr, watMat);
+
+
+	//===================== SKYBOX ==============================
+
+	createSkybox();
 }
 
 void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
@@ -243,9 +295,186 @@ void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
 	meshrenderer::setMaterial(rend, grassmat);
 }
 
+void TerrainCreator::updateSkybox()
+{
+
+
+	const int size = 256;
+	alfar::Vector4 skycol = {121.0f/255.0f, 211.0f/255.0f, 224.0f/255.0f, 1.0f};
+	alfar::Vector4 groundcol = {94.0f/255.0f, 87.0f/255.0f, 47.0f/255.0f, 1.0f};
+
+	for(int i = 0; i < 6; ++i)
+	{
+		union RGB
+		{
+			GLuint data;
+			struct 
+			{
+				GLubyte r,g,b,a;
+			};
+		};
+
+		RGB img[size*size];
+
+
+		const float randMult = emscripten_random();
+
+		for(int x = 0; x < size; ++x)
+		{
+			for(int y = 0; y < size; ++y)
+			{
+				alfar::Vector3 n = faceUVToVector(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, y/(float)size, x/(float)size);
+
+				float d = alfar::vector3::dot(n, alfar::vector3::create(0,1,0));
+
+				d = (d + 1.0f) * 0.5f + 0.2f;//offset horizon
+				d = d > 1.0f ? 1.0f : d;
+
+				alfar::Vector4 col = alfar::vector4::lerp(skycol, groundcol, 1.0f-d);
+
+				alfar::Vector3 cloudIntersection;
+
+				const float pointDivider = 500.0f;
+
+				const float dist = alfar::vector3::linePlaneIntersection(	
+					alfar::vector3::create(0,200,0),
+					alfar::vector3::create(0,1.0f,0),
+					alfar::vector3::create(0,0,0),
+					n);
+
+				if(dist >= 0.0f)
+				{
+
+					cloudIntersection = alfar::vector3::mul(n, dist);
+					float val = stb_perlin_noise3(	cloudIntersection.x /pointDivider + accum,
+						cloudIntersection.y /pointDivider + accum,
+						cloudIntersection.z /pointDivider + accum);
+
+					float distWeight = 2000.0f / dist;
+					val = (val + 1.0f) * 0.5f;
+
+					//col = alfar::vector4::lerp(col, alfar::vector4::create(1.0f, 1.0f, 1.0f, 1.0f), val * (dist/pointDivider));
+
+					const float strength = 0.4f;// * distWeight;
+					col.x += val * strength;
+					col.y += val * strength;
+					col.z += val * strength;
+				}
+
+				col = alfar::vector4::clamp(col, 0.0f, 1.0f);
+
+				img[x*size + y].r = 255 * col.x;
+				img[x*size + y].g = 255 * col.y;
+				img[x*size + y].b = 255 * col.z;
+			}
+		}
+
+		texture::uploadData(skyboxTex, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, size,size,0,GL_UNSIGNED_BYTE, &img[0].r);
+	}
+}
+
+void TerrainCreator::createSkybox()
+{
+	int i;
+	int j;
+
+	const float radius = 2.0f;
+	const int numSlices = 10;
+	const int numParallels = numSlices;
+	const int numVertices = ( numParallels + 1 ) * ( numSlices + 1 );
+	const int numIndices = numParallels * numSlices * 6;
+	float angleStep = (2.0f * 3.14f) / ((float) numSlices);
+
+
+	InputVertex vertices[numVertices];
+	GLushort indices[numIndices];
+
+	for ( i = 0; i < numParallels + 1; i++ )
+	{
+		for ( j = 0; j < numSlices + 1; j++ )
+		{
+			int vertex = ( i * (numSlices + 1) + j );
+
+			vertices[vertex ].position = alfar::vector4::create(	radius * sinf ( angleStep * (float)i ) * sinf ( angleStep * (float)j ),
+																	radius * cosf ( angleStep * (float)i ),
+																	radius * sinf ( angleStep * (float)i ) * cosf ( angleStep * (float)j ),
+																	1.0f );
+
+			vertices[vertex ].normal = alfar::vector4::create(	vertices[vertex ].position.x/radius,
+																vertices[vertex ].position.y/radius,
+																vertices[vertex ].position.z/radius,
+																0.0f);
+
+
+			vertices[vertex ].uv = alfar::vector4::create(	(float) j / (float) numSlices,
+															( 1.0f - (float) i ) / (float) (numParallels - 1 ),
+															0,
+															0);
+		}
+	}
+
+	GLushort *indexBuf = indices;
+	for ( i = 0; i < numParallels ; i++ ) 
+	{
+		for ( j = 0; j < numSlices; j++ )
+		{
+			*indexBuf++  = i * ( numSlices + 1 ) + j;
+			*indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + j;
+			*indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + ( j + 1 );
+
+			*indexBuf++ = i * ( numSlices + 1 ) + j;
+			*indexBuf++ = ( i + 1 ) * ( numSlices + 1 ) + ( j + 1 );
+			*indexBuf++ = i * ( numSlices + 1 ) + ( j + 1 );
+		}
+	}
+
+
+	//---- SHADER
+
+	ShaderID shad = shader::create();
+
+	shader::setFromFile(shad, GL_VERTEX_SHADER, "skybox.vs");
+	shader::setFromFile(shad, GL_FRAGMENT_SHADER, "skybox.ps");
+	shader::link(shad);
+
+	skyboxMat = material::create();
+	material::setShader(skyboxMat, shad);
+
+	getMaterial(skyboxMat).states.writeDepth = false;
+	getMaterial(skyboxMat).states.depthTest = false;
+	//material::setFlag(skyboxMat, MAT_TRANSPARENT);
+	//----------------------------
+	
+	MeshID m = mesh::create();
+	mesh::upload(m, GL_ARRAY_BUFFER, vertices, numVertices * sizeof(InputVertex));
+	mesh::upload(m, GL_ELEMENT_ARRAY_BUFFER, indices, numIndices * sizeof(GLushort));
+
+	skyboxMesh = meshrenderer::create(-1);
+	meshrenderer::setMaterial(skyboxMesh, skyboxMat);
+	meshrenderer::setMesh(skyboxMesh, m);
+
+	//-----------------------------
+
+	skyboxTex = texture::create(GL_TEXTURE_CUBE_MAP);
+
+	material::setTexture(skyboxMat, "sSkybox", skyboxTex);
+	material::setTexture(watMat, "sSkybox", skyboxTex);
+
+	updateSkybox();
+}
+
 void TerrainCreator::update(float deltaTime)
 {
 	accum += deltaTime;
 	alfar::Vector4 info = {accum, 0,0,0};
 	material::setValue(watMat, "uData", &info, sizeof(alfar::Vector4));
+
+	//updateSkybox();
+
+	RenderKey k = meshrenderer::createRenderKey(getMeshRenderer(skyboxMesh));
+	k.transform = alfar::mat4x4::identity();
+	k.sortKey.cameraID = 0;
+	k.sortKey.layer = 0;
+	
+	renderer::addRenderable(k);
 }

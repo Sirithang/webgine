@@ -147,6 +147,7 @@
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\terrainbehaviour.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,11 +177,14 @@
     <ClInclude Include="include\objectmanager.h" />
     <ClInclude Include="include\std_perlin.h" />
     <ClInclude Include="include\terrainbehaviour.h" />
+    <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\basepasspixel.ps" />
     <None Include="data\basepassvertex.vs" />
+    <None Include="data\skybox.ps" />
+    <None Include="data\skybox.vs" />
     <None Include="data\terrainpass.ps" />
     <None Include="data\water.ps" />
   </ItemGroup>

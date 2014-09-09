@@ -4,6 +4,7 @@
 #include "math_types.h"
 
 #include "objectmanager.h"
+#include "material.h"
 
 struct RenderKey
 {
@@ -12,6 +13,7 @@ struct RenderKey
 		unsigned long long _key;
 		struct  
 		{
+			unsigned char	layer;//lower layer  are rendered first
 			unsigned char	cameraID;
 			unsigned char	transparent;
 
@@ -31,6 +33,7 @@ struct RenderKey
 	} sortKey;
 	
 	alfar::Matrix4x4 transform;
+	StateData statedat;
 
 	ID shader;
 	ID material;
@@ -43,6 +46,11 @@ struct GlobalValue
 	float value[16];
 };
 
+struct GlobalTexture
+{
+	char name[256];
+	int textureHandle;
+};
 
 struct Renderer
 {
