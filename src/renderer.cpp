@@ -121,7 +121,7 @@ void renderer::render()
 		prevData = current->statedat;
 		toggleStates(prevData, prevData, false);
 	}
-
+	
 	
 	glDisable(GL_BLEND);
 
@@ -138,15 +138,15 @@ void renderer::render()
 
 		if(current->shader != last.shader)
 		{
-			shader::bind(current->shader);
+			shader::bind(current->shader); 
 
 			Camera& c = getCamera(current->sortKey.cameraID);
 			shader::setParameter(current->shader, "uViewMatrix", &c.view);
 			shader::setParameter(current->shader, "uProjectionMatrix", &c.projection);
 
-			alfar::Vector4 viewDir = alfar::vector4::create(transform::getForward(c._tn),0);
+			alfar::Vector4 viewDir = alfar::vector4::create(transform::getWorldPosition(c._tn),0);
 
-			shader::setParameter(current->shader, "uViewDir", &viewDir);
+			shader::setParameter(current->shader, "uCameraPos", &viewDir);
 
 			//rebind every global
 			for(int i = 0; i < gRenderer->_globalNumber; ++i)

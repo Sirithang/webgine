@@ -5,6 +5,14 @@
 #include "mesh.h"
 #include "meshrenderer.h"
 
+struct GrassCell
+{
+	alfar::Vector3 pos;
+	
+	MeshID grassBufferMesh;
+};
+
+
 struct TerrainCreator : public BehaviourInterface
 {
 	MaterialID mat;

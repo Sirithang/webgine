@@ -78,7 +78,7 @@ void material::setTexture(MaterialID mat, const char* name, TextureID tex)
 
 	if(idx == -1)
 	{
-		//printf("Couldn't find : %s in shader\n", name);
+		printf("Couldn't find texture : %s in shader\n", name);
 		return;
 	}
 
@@ -95,12 +95,12 @@ void material::setTexture(MaterialID mat, const char* name, TextureID tex)
 
 	if(existingId == -1)
 	{//first time we set that param, insert it in array
-		m._values[m._texturecount].paramIdx = idx;
+		m._textures[m._texturecount].paramIdx = idx;
 		existingId = m._texturecount;
 		m._texturecount += 1;
 	}
 
-	m._textures[existingId].textureHandle = t._native;//avoid conversion, just store bits
+	m._textures[existingId].textureHandle = t._native;
 }
 
 //=========================================

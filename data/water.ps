@@ -9,7 +9,7 @@ varying vec4 oTexcoord;
 uniform vec3 uColor;
 uniform vec4 uData;
 
-uniform vec4 uViewDir;
+uniform vec4 uCameraPos;
 uniform vec4 uLightDir;
 uniform vec4 uSkyColor;
 uniform vec4 uGroundColor;
@@ -86,8 +86,9 @@ float waterMap( vec2 pos )
 void main()                                  
 {
 	vec3 normal = vec3(0,1,0);
+	vec3 wPos = oWorldPos.xyz/oWorldPos.w;
 
-	float bumpfactor = 10.0;
+	float bumpfactor = 0.5;
 
 	vec2 dx = vec2( EPSILON, 0. );
 	vec2 dz = vec2( 0., EPSILON );
@@ -100,14 +101,18 @@ void main()
 
 	float intensity = dot(normal, -uLightDir.xyz);
 	float roughness = 0.1;
-	vec3 spec = Specular_F_Roughness(vec3(0.17,0.17,0.17), roughness*roughness, oNormal, -uViewDir.xyz);
+
+	vec3 viewDir = normalize(wPos - uCameraPos.xyz);
+	vec3 samplingVec = reflect(viewDir, normal.xyz);
+
+	vec3 spec = Specular_F_Roughness(vec3(0.17,0.17,0.17), roughness*roughness, oNormal, -viewDir);
 
 	//This is ambient diffuse
-	vec4 ambientCol = textureCube(sSkybox, normal);
+	vec4 ambientCol = textureCube(sSkybox, samplingVec);
 
-	vec4 endColor = vec4(0,0,0, 0.6);
+	vec4 endColor = vec4(0,0,0, 0.8);
 	endColor.xyz = vec3(0.0,0.0,0.0) * 0.5;
-	endColor.xyz += spec * ambientCol.xyz;
+	endColor.xyz +=  ambientCol.xyz;
 	//endColor.xyz += intensity * vec3(1,1,1) * 0.1;
 
 	gl_FragColor = endColor;	     

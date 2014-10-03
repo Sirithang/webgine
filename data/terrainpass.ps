@@ -9,24 +9,70 @@ uniform vec4 uLightDir;
 uniform vec4 uSkyColor;
 uniform vec4 uGroundColor;
 
+float remap(float val, float lMin, float lMax, float rMin, float rMax)
+{
+	float leftSpan = lMax - lMin;
+	float rightSpan = rMax - rMin;
+
+	float scaledVal = (val - lMin) / leftSpan;
+
+	return rMin + (scaledVal * rightSpan);
+}
+
+// hash based 3d value noise
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+float noise( in vec3 x )
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                   mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                   mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
+
+const mat3 m3 = mat3( 0.00,  0.80,  0.60,
+                     -0.80,  0.36, -0.48,
+                     -0.60, -0.48,  0.64 );
+float fbm( in vec3 p ) {
+    float f = 0.0;
+    f += 0.5000*noise( p ); p = m3*p*2.02;
+    f += 0.2500*noise( p ); p = m3*p*2.03;
+    f += 0.1250*noise( p ); p = m3*p*2.01;
+    f += 0.0625*noise( p );
+    return f/0.9375;
+}
+
 void main()                                  
-{                      
+{           
+	float randval = fbm(oWorldPos.xyz);
+
 	//under 0 go toward "beach"
-	float worldH = clamp(-(oWorldPos.y / oWorldPos.w - 1.0), 0.0, 1.0);
-   
+	float worldH = clamp(remap(oWorldPos.y / oWorldPos.w + (randval * 0.4 - 0.2), 1.0,0.5,0.0,1.0), 0.0, 1.0);
    //steeper slope give rocky
 
    float sampling = (dot(oNormal,vec3(0,1,0)) + 1.0) * 0.5;
    
    float intensity = clamp(dot(oNormal, -uLightDir.xyz), 0.0,1.0);  
    
-   vec3 sand = vec3(0.96, 0.87, 0.42);
-   vec3 grass = vec3(0.5, 1.0, 0.6);
+   vec3 sand = vec3(240.0/255.0, 240.0/255.0, 160.0/255.0);
+   vec3 grass = vec3(200.0/255.0, 30.0/255.0, 50.0/255.0);
    vec3 rock = vec3(0.56,0.53,0.49);
 
-   vec3 col = mix(grass, sand, worldH);
+  // if(worldH < 0.8)
+		//worldH = clamp((worldH + (randval * 0.4 - 0.2)) - 0.8, 0.0, 1.0) / 0.2;
+
+   randval = randval * 0.2 + 0.8;
+   vec3 col = mix(grass, sand, worldH) * randval;
 
    vec4 lightCol = mix(uGroundColor, uSkyColor, sampling);
                     
-   gl_FragColor = vec4 ( col * intensity, 1.0 ) * lightCol;
+   gl_FragColor = vec4 ( col * intensity, 1.0 ) ;
 }           

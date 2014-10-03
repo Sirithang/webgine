@@ -199,5 +199,11 @@
     <None Include="data\skybox.vs">
       <Filter>data</Filter>
     </None>
+    <None Include="data\grass.ps">
+      <Filter>data</Filter>
+    </None>
+    <None Include="data\grass.vs">
+      <Filter>data</Filter>
+    </None>
   </ItemGroup>
 </Project>

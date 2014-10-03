@@ -233,6 +233,11 @@ void shader::setTexture(ShaderID shad, int id, GLuint handle, int slot)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
 			glUniform1i(id, slot);
 			break;
+		case GL_SAMPLER_2D:
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(GL_TEXTURE_2D, handle);
+			glUniform1i(id, slot);
+			break;
 		default:
 			break;
 		}

@@ -24,15 +24,16 @@ void texture::uploadData(TextureID tex, GLenum target, int width, int height, in
 
 	glBindTexture ( t._target, t._native );
 
+	glTexParameteri ( t._target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri ( t._target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
 	switch (t._target)
 	{
+	case GL_TEXTURE_2D:
 	case GL_TEXTURE_CUBE_MAP:
 		glTexImage2D(target, 0, GL_RGBA, width, height, 0, GL_RGBA, pixeltype, data);
 		break;
 	default:
 		break;
 	}
-
-	glTexParameteri ( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri ( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 }

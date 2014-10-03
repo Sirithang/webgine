@@ -5,6 +5,7 @@
 
 #include "vector3.h"
 #include "vector4.h"
+#include "quaternion.h"
 #include "mat4x4.h"
 
 #include "std_perlin.h"
@@ -16,6 +17,14 @@
 
 #include <vector>
 
+union RGB
+{
+	GLuint data;
+	struct 
+	{
+		GLubyte r,g,b,a;
+	};
+};
 
 
 alfar::Vector3 faceUVToVector(GLenum face, float U, float V)
@@ -171,7 +180,7 @@ void TerrainCreator::created()
 	mesh::upload(m, GL_ELEMENT_ARRAY_BUFFER, indices, currentIdx * sizeof(GLushort));
 
 
-	//spawnGrass(verts, size);
+	spawnGrass(verts, size);
 
 	MeshRendererID r = meshrenderer::create(this->_entity);
 	meshrenderer::setMesh(r, m);
@@ -220,20 +229,88 @@ void TerrainCreator::created()
 
 void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
 {
+	//===========================================
+	// grass texture generation
+
+	const int grassTexSize = 256;
+	const int quarterGrassSize = grassTexSize/4;
+
+	RGB textData[grassTexSize * grassTexSize];
+
+	//memset(textData, 0xFF00FF, sizeof(RGB) * (grassTexSize*grassTexSize));
+
+	for(int i = 0; i < grassTexSize; ++i)
+	{
+		for(int j = 0; j < grassTexSize; ++j)
+		{
+			textData[i * grassTexSize + j].data = 0xFF000000;
+		}
+	}
+
+	const int grassBladesNb = (int)(emscripten_random() * 30) + 20; 
+	for(int i = 0; i < grassBladesNb; ++i)
+	{
+		int startX = grassTexSize / 2 - quarterGrassSize + (emscripten_random() * quarterGrassSize * 2);
+		int startY = grassTexSize - 1;
+		int width = 6 + emscripten_random() * 6;
+
+		float growX = emscripten_random() * 1.0f - 0.5f;
+		float currentX = startX;
+		float currentY = startY;
+
+		float growY = -1.0f / sqrtf(growX*growX + 1);
+		growX = growX / sqrtf(growX * growX + 1);
+
+		float currentWidth = width;
+		float gravity = 0.1f * emscripten_random();
+
+		while(currentY >= 0 && currentX > 0 && currentX < grassTexSize && currentWidth > 0.0)
+		{
+			int x = (int)roundf(currentX);
+			int y = (int)roundf(currentY);
+
+			float xratio = x
+
+			int startW = (int)roundf(currentWidth * 0.5f);
+			for(int k = -startW; k <= startW; ++k)
+			{
+				if(x+k < 0 || x+k >= grassTexSize)
+					continue;
+
+				float ratio = (k+startW) / currentWidth;
+
+				textData[y * grassTexSize + (x+k)].r = 128 + (ratio*128);
+			}
+
+			currentY += growY;
+			currentX += growX;
+
+			growY -= gravity;
+			currentWidth -= 0.02f;
+		}
+	}
+
+	TextureID grassTex = texture::create(GL_TEXTURE_2D);
+	texture::uploadData(grassTex, GL_TEXTURE_2D, grassTexSize, grassTexSize, 0, GL_UNSIGNED_BYTE, textData);
+
+	//============================================
+
 	MeshID m = mesh::create();
 
 	const int maxNb = 2000;
-	const int number = 1000;//emscripten_random() * maxNb;
+	const int number = maxNb;//emscripten_random() * maxNb;
 	InputVertex verts[maxNb * 4];
 	GLushort idxs[maxNb * 4 * 6];
 
 	int placedCount = 0;
 	int currentIdx = 0;
 
+	float radius = 20.0f;
+
 	for(int i = 0; i < number; ++i)
 	{
-		int x = (int)(emscripten_random() * size);
-		int y = (int)(emscripten_random() * size);
+		int x = (size / 2) + (int)(emscripten_random() * radius* 2 - radius);
+		int y = (size / 2) + (int)(emscripten_random() * radius* 2 - radius);
 
 		if(x*size + y < size*size)
 		{
@@ -242,14 +319,20 @@ void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
 
 			if(inputVert[idx].position.y > 0.2 && inputVert[idx].normal.y > 0.9)
 			{
-				alfar::Vector4 pos = alfar::vector4::add(inputVert[idx].position, alfar::vector4::create(emscripten_random()-0.5f, 0, emscripten_random()-0.5f, 0));
-				alfar::Vector2 offsets[4] = {{-1,-1}, {1,-1}, {1,1}, {-1,1}};
+				float grassSize = 0.5f + emscripten_random() * 2.5f;
+				alfar::Vector4 pos = alfar::vector4::add(inputVert[idx].position, alfar::vector4::create(emscripten_random() * 3.0f - 1.5f, 0, emscripten_random() * 3.0f - 1.5f, 0));
+				alfar::Vector2 offsets[4] = {{-1 * grassSize,-1 * grassSize}, {1 * grassSize,-1 * grassSize}, {1 * grassSize,1*grassSize}, {-1*grassSize,1*grassSize}};
+
+				float angle = emscripten_random() * 360.0f;// * 3.14f;
 				for(int k = 0; k < 4 ; ++k)
 				{
+					alfar::Vector3 rotatedR = alfar::vector3::create(offsets[k].x * cos(angle), 0, offsets[k].x * sin(angle));
+					alfar::Vector3 offsetRot = alfar::vector3::add(rotatedR, alfar::vector3::create(0,offsets[k].y,0));
+
 					InputVertex v;
-					v.position = alfar::vector4::add(pos, alfar::vector4::create(offsets[k].x, offsets[k].y, 0, 0));
+					v.position = alfar::vector4::add(pos, alfar::vector4::create(offsetRot, 0.0f));
 					v.normal = alfar::vector4::create(0,0,-1, 0);
-					v.uv = alfar::vector4::create(offsets[k].x, offsets[k].y, 0,0);
+					v.uv = alfar::vector4::create(offsets[k].x / grassSize, offsets[k].y / grassSize, 0,0);
 
 					verts[placedCount + k] = v;
 				}
@@ -277,14 +360,17 @@ void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
 	ShaderID shad = shader::create();
 
 	shader::setFromFile(shad, GL_VERTEX_SHADER, "basepassvertex.vs");
-	shader::setFromFile(shad, GL_FRAGMENT_SHADER, "basepasspixel.ps");
+	shader::setFromFile(shad, GL_FRAGMENT_SHADER, "grass.ps");
 	shader::link(shad);
 
 	MaterialID grassmat = material::create();
 	material::setShader(grassmat, shad);
+	//material::setFlag(grassmat, MAT_TRANSPARENT);
+	material::setTexture(grassmat, "sTex", grassTex);
 
 	alfar::Vector3 c = alfar::vector3::create(0.0f, 1.0f, 0.0f);
 	material::setValue(mat, "uColor", &c, sizeof(alfar::Vector3));
+	
 
 	//==========================
 
@@ -297,27 +383,20 @@ void TerrainCreator::spawnGrass(InputVertex* inputVert, int size)
 
 void TerrainCreator::updateSkybox()
 {
-
-
-	const int size = 256;
+	const int size = 512;
 	alfar::Vector4 skycol = {121.0f/255.0f, 211.0f/255.0f, 224.0f/255.0f, 1.0f};
-	alfar::Vector4 groundcol = {94.0f/255.0f, 87.0f/255.0f, 47.0f/255.0f, 1.0f};
+	alfar::Vector4 groundcol = {240.0f/255.0f, 240.0f/255.0f, 240.0f/255.0f, 1.0f};
+
+
+	alfar::Vector3 lightdir = alfar::vector3::normalize(alfar::vector3::create(0.7,1.0,0));
+
+	alfar::Vector3 moonpos = alfar::vector3::mul(alfar::vector3::normalize(alfar::vector3::create(0.1,0.1,0.5)), 100.0f);
+
+	//printf("moon pos %f %f %f \n", moonpos.x, moonpos.y, moonpos.z);
 
 	for(int i = 0; i < 6; ++i)
 	{
-		union RGB
-		{
-			GLuint data;
-			struct 
-			{
-				GLubyte r,g,b,a;
-			};
-		};
-
 		RGB img[size*size];
-
-
-		const float randMult = emscripten_random();
 
 		for(int x = 0; x < size; ++x)
 		{
@@ -327,45 +406,81 @@ void TerrainCreator::updateSkybox()
 
 				float d = alfar::vector3::dot(n, alfar::vector3::create(0,1,0));
 
-				d = (d + 1.0f) * 0.5f + 0.2f;//offset horizon
+				d = (d + 1.0f) * 0.5f;//offset horizon
 				d = d > 1.0f ? 1.0f : d;
 
 				alfar::Vector4 col = alfar::vector4::lerp(skycol, groundcol, 1.0f-d);
 
-				alfar::Vector3 cloudIntersection;
+				//alfar::Vector3 cloudIntersection;
 
-				const float pointDivider = 500.0f;
+				//const float pointDivider = 200.0f;
 
-				const float dist = alfar::vector3::linePlaneIntersection(	
-					alfar::vector3::create(0,200,0),
-					alfar::vector3::create(0,1.0f,0),
-					alfar::vector3::create(0,0,0),
-					n);
+				//float dist = alfar::vector3::linePlaneIntersection(	
+				//	alfar::vector3::create(0,500,0),
+				//	alfar::vector3::create(0,1.0f,0),
+				//	alfar::vector3::create(0,0,0),
+				//	n);
+				//
+				//if(dist >= 0.0f)
+				//{
+				//	dist += emscripten_random() * 5.0f;
 
-				if(dist >= 0.0f)
+				//	cloudIntersection = alfar::vector3::mul(n, dist);
+				//	float val = stb_perlin_noise3(	
+				//		(cloudIntersection.x) * .002f,
+				//		(cloudIntersection.y) * .002f,
+				//		(cloudIntersection.z) * .002f);
+
+
+				//	float distWeight = 500.0f / dist;
+				//	distWeight = distWeight > 1.0f ? 1.0f : distWeight;
+				//	val = (val + 1.0f) * 0.5f * distWeight;
+
+				//	//col = alfar::vector4::lerp(col, alfar::vector4::create(1.0f, 1.0f, 1.0f, 1.0f), val * (dist/pointDivider));
+
+				//	const float strength = 0.4f;// * distWeight;
+				//	/*col.x += val * strength;
+				//	col.y += val * strength;
+				//	col.z += val * strength;*/
+
+				//	col.x = val;
+				//	col.y = val;
+				//	col.z = val;
+				//}
+
+				//==== Moonintersect
+
+				float inters = alfar::vector3::raySphereIntersection(moonpos, 14.0f, alfar::vector3::create(0,0,0), n);
+				if(inters >= 0)
 				{
+					//printf("one intersection\n");
+					alfar::Vector3 ptsinter = alfar::vector3::mul(n, inters);
 
-					cloudIntersection = alfar::vector3::mul(n, dist);
-					float val = stb_perlin_noise3(	cloudIntersection.x /pointDivider + accum,
-						cloudIntersection.y /pointDivider + accum,
-						cloudIntersection.z /pointDivider + accum);
+					const float multi = 0.3f;
 
-					float distWeight = 2000.0f / dist;
-					val = (val + 1.0f) * 0.5f;
+					float texture = stb_perlin_noise3(ptsinter.x * multi, ptsinter.y * multi, 0);
+					float texture2 = stb_perlin_noise3(ptsinter.y * multi, ptsinter.x * multi, 0);
 
-					//col = alfar::vector4::lerp(col, alfar::vector4::create(1.0f, 1.0f, 1.0f, 1.0f), val * (dist/pointDivider));
+					alfar::Vector3 normal = alfar::vector3::normalize(alfar::vector3::sub(ptsinter, moonpos));
 
-					const float strength = 0.4f;// * distWeight;
-					col.x += val * strength;
-					col.y += val * strength;
-					col.z += val * strength;
+					normal.x += texture;
+					normal.y += texture2;
+
+					normal = alfar::vector3::normalize(normal);
+
+					float lighting = alfar::vector3::dot(lightdir, normal);
+
+					col.x += lighting;
 				}
+
+				//================
 
 				col = alfar::vector4::clamp(col, 0.0f, 1.0f);
 
 				img[x*size + y].r = 255 * col.x;
 				img[x*size + y].g = 255 * col.y;
 				img[x*size + y].b = 255 * col.z;
+				img[x*size + y].a = 255;
 			}
 		}
 

@@ -1,0 +1,65 @@
+precision mediump float;
+
+#define EPSILON 0.1
+
+varying vec4 oWorldPos;
+varying vec3 oNormal;
+varying vec4 oTexcoord;
+
+uniform vec3 uColor;
+uniform vec4 uData;
+
+uniform vec4 uCameraPos;
+uniform vec4 uLightDir;
+uniform vec4 uSkyColor;
+uniform vec4 uGroundColor;
+
+uniform sampler2D sTex;
+
+// hash based 3d value noise
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+float noise( in vec3 x )
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                   mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                   mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
+
+const mat3 m3 = mat3( 0.00,  0.80,  0.60,
+                     -0.80,  0.36, -0.48,
+                     -0.60, -0.48,  0.64 );
+float fbm( in vec3 p ) {
+    float f = 0.0;
+    f += 0.5000*noise( p ); p = m3*p*2.02;
+    f += 0.2500*noise( p ); p = m3*p*2.03;
+    f += 0.1250*noise( p ); p = m3*p*2.01;
+    f += 0.0625*noise( p );
+    return f/0.9375;
+}
+
+
+void main()                                  
+{
+	vec2 uv = (oTexcoord.xy + vec2(1.0,1.0)) * vec2(0.5, 0.5);
+
+	uv.y = 1.0-uv.y;
+
+	vec4 grass = texture2D(sTex, uv);
+	
+	if(grass.x < 0.5)
+		discard;
+
+	 vec3 col = vec3(200.0/255.0, 150.0/255.0, 50.0/255.0) * grass.x;
+
+	gl_FragColor =  vec4(col, 1.0);//vec4(grass, 0.0,1.0);	     
+}

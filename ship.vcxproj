@@ -183,6 +183,8 @@
   <ItemGroup>
     <None Include="data\basepasspixel.ps" />
     <None Include="data\basepassvertex.vs" />
+    <None Include="data\grass.ps" />
+    <None Include="data\grass.vs" />
     <None Include="data\skybox.ps" />
     <None Include="data\skybox.vs" />
     <None Include="data\terrainpass.ps" />
